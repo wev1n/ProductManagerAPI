@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductManagerAPI.Data;
 using ProductManagerAPI.Data.Entites;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProductManagerAPI.Controllers
 {
@@ -108,10 +109,19 @@ namespace ProductManagerAPI.Controllers
 
     public class CreateProductRequest
     {
+        [Required]
         public string Name { get; set; }
+
+        [Required]
         public string Sku { get; set; }
+        [Required]
+
         public string Description { get; set; }
+
+        [Required]
         public string Url { get; set; }
+
+        [Required]
         public int Price { get; set; }
     }
 
