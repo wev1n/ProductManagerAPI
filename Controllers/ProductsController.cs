@@ -2,6 +2,7 @@
 using ProductManagerAPI.Data;
 using ProductManagerAPI.Data.Entites;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductManagerAPI.Controllers
 {
@@ -9,14 +10,18 @@ namespace ProductManagerAPI.Controllers
     [Route("[controller]")]
     public class ProductsController : ControllerBase
     {
+        // Kan bara sättas i constructorn
         private readonly ApplicationDbContext context;
 
+        // constructorn
         public ProductsController(ApplicationDbContext context)
         {
             this.context = context;
         }
 
         [HttpGet]
+        [Produces("application/json")]
+        [ProducesResponseType(200)]
         public IEnumerable<ProductDto> GetProducts([FromQuery] string? name)
         {
             IEnumerable<Product> products = string.IsNullOrEmpty(name)
@@ -37,6 +42,9 @@ namespace ProductManagerAPI.Controllers
         }
 
         [HttpGet("{sku}")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(ProductDto), 200)]
+        [ProducesResponseType(404)]
         public ActionResult<ProductDto> GetProduct(string sku)
         {
             var product = context.Products.FirstOrDefault(x => x.Sku == sku);
@@ -60,6 +68,10 @@ namespace ProductManagerAPI.Controllers
         }
 
         [HttpPost]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(ProductDto), 201)]
+        [ProducesResponseType(400)]
         public ActionResult<ProductDto> CreateProduct(CreateProductRequest request)
         {
             var product = new Product
@@ -84,6 +96,7 @@ namespace ProductManagerAPI.Controllers
                 Price = product.Price,
             };
 
+            // example localhost/8000/products/123
             return CreatedAtAction(
                 nameof(CreateProduct),
                 new { id = product.Id },
@@ -91,6 +104,9 @@ namespace ProductManagerAPI.Controllers
         }
 
         [HttpDelete("{sku}")]
+        [Produces("application/json")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         public ActionResult DeleteProduct(string sku) 
         {
             var product = context.Products.FirstOrDefault(x => x.Sku == sku);
@@ -110,15 +126,19 @@ namespace ProductManagerAPI.Controllers
     public class CreateProductRequest
     {
         [Required]
+        [MaxLength(50)]
         public string Name { get; set; }
 
         [Required]
+        [MaxLength(6)]
         public string Sku { get; set; }
-        [Required]
 
+        [Required]
+        [MaxLength(250)]
         public string Description { get; set; }
 
         [Required]
+        [MaxLength(100)]
         public string Url { get; set; }
 
         [Required]
@@ -128,10 +148,24 @@ namespace ProductManagerAPI.Controllers
     public class ProductDto
     {
         public int Id { get; set; }
+
+        [Required]
+        [MaxLength(50)]
         public string Name { get; set; }
+
+        [Required]
+        [MaxLength(6)]
         public string Sku { get; set; }
+
+        [Required]
+        [MaxLength(250)]
         public string Description { get; set; }
+
+        [Required]
+        [MaxLength(100)]
         public string Url { get; set; }
+
+        [Required]
         public int Price { get; set; }
     }
 }
